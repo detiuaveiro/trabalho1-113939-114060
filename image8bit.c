@@ -14,7 +14,7 @@
 // 
 // 
 // 
-// Date: 
+// Date:
 //
 
 #include "image8bit.h"
@@ -146,12 +146,8 @@ static int check(int condition, const char* failmsg) {
 void ImageInit(void) { ///
   InstrCalibrate();
   InstrName[0] = "pixmem";  // InstrCount[0] will count pixel array acesses
-
-  
   // Name other counters here...
   
-  InstrName[1] = "instr1";   /*Outros contadores*/
-  InstrName[2] = "instr2";
 }
 
 // Macros to simplify accessing instrumentation counters:
@@ -171,40 +167,11 @@ void ImageInit(void) { ///
 /// On success, a new image is returned.
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
-Image ImageCreate(int width, int height, uint8 maxval) { 
-  // Verifica se os parametros são válidos
+Image ImageCreate(int width, int height, uint8 maxval) { ///
   assert (width >= 0);
   assert (height >= 0);
   assert (0 < maxval && maxval <= PixMax);
-
-    // Aloca memória para a estrutura da imagem
-  Image img = (Image)malloc(sizeof(struct image));
-  if (img == NULL) {
-    errCause = "Failed to allocate memory for the image structure";
-    return NULL;
-  }
-
-  // Define os campos da estrutura da imagem
-  img->width = width;
-  img->height = height;
-  img->maxval = maxval;
-  
-
-  // Aloca memória para o array de pixels
-  img->pixel = (uint8*)malloc(width * height * sizeof(uint8));
-  if (img->pixel == NULL) {
-    free(img);  // Libera a estrutura da imagem se a alocação falhar
-    errCause = "Failed to allocate memory for the pixel array";
-    return NULL;
-  }
-
-  // Inicializa o array de pixels (pode ser configurado para preto)
-  for (int i = 0; i < width * height; i++) {
-    img->pixel[i] = 0;  // Define todos os pixels como preto (valor 0)
-  }
-  return img;
-  
-
+  // Insert your code here!
 }
 
 /// Destroy the image pointed to by (*imgp).
@@ -213,15 +180,9 @@ Image ImageCreate(int width, int height, uint8 maxval) {
 /// Ensures: (*imgp)==NULL.
 /// Should never fail, and should preserve global errno/errCause.
 void ImageDestroy(Image* imgp) { ///
-  assert (imgp != NULL && *imgp != NULL);
-
-  free((*imgp) -> pixel); // Liberta a lista de pixeis
-  (*imgp) -> pixel = NULL; // Define a lista de pixeis como NULA
-
-  free(*imgp); // Liberta a estrutura da imagem
-  *imgp = NULL; // Define a estrutura da imagem como NULA
+  assert (imgp != NULL);
+  // Insert your code here!
 }
-
 
 
 /// PGM file operations
@@ -253,9 +214,8 @@ Image ImageLoad(const char* filename) { ///
   FILE* f = NULL;
   Image img = NULL;
 
-  int success =
-
-  check((f = fopen(filename, "rb")) != NULL, "Open failed" ) &&
+  int success = 
+  check( (f = fopen(filename, "rb")) != NULL, "Open failed" ) &&
   // Parse PGM header
   check( fscanf(f, "P%c ", &c) == 1 && c == '5' , "Invalid file format" ) &&
   skipComments(f) >= 0 &&
@@ -267,14 +227,10 @@ Image ImageLoad(const char* filename) { ///
   check( fscanf(f, "%c", &c) == 1 && isspace(c) , "Whitespace expected" ) &&
   // Allocate image
   (img = ImageCreate(w, h, (uint8)maxval)) != NULL &&
-
-PIXMEM += (unsigned long)(w*h);  // count pixel memory accesses
-
   // Read pixels
-  if (success) {
-    size_t num_pixels_read = fread(img->pixel, sizeof(uint8), w * h, f);
-    success = check(num_pixels_read = (size_t)(w * h), "Reading pixels");
-  }
+  check( fread(img->pixel, sizeof(uint8), w*h, f) == w*h , "Reading pixels" );
+  PIXMEM += (unsigned long)(w*h);  // count pixel memory accesses
+
   // Cleanup
   if (!success) {
     errsave = errno;
@@ -337,21 +293,7 @@ int ImageMaxval(Image img) { ///
 /// *max is set to the maximum.
 void ImageStats(Image img, uint8* min, uint8* max) { ///
   assert (img != NULL);
-  assert (min != NULL && max != NULL);
-
-  *min = *max = ImageGetPixel(img, 0, 0);
-
-  int width = ImageWidth(img);
-  int height = ImageHeight(img);
-
-  // Percorrer todos os pixeis da imagem
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      uint8 pixel = ImageGetPixel(img, x, y);
-      if (pixel < *min) *min = pixel; // Atualiza o mínimo
-      if (pixel > *max) *max = pixel; // Atualiza o máximo
-    }
-  }
+  // Insert your code here!
 }
 
 /// Check if pixel position (x,y) is inside img.
@@ -363,7 +305,7 @@ int ImageValidPos(Image img, int x, int y) { ///
 /// Check if rectangular area (x,y,w,h) is completely inside img.
 int ImageValidRect(Image img, int x, int y, int w, int h) { ///
   assert (img != NULL);
-  return(x >= 0 && y >= 0 && x + w <= img->width && y + h <= img->height);
+  // Insert your code here!
 }
 
 /// Pixel get & set operations
@@ -413,33 +355,15 @@ void ImageSetPixel(Image img, int x, int y, uint8 level) { ///
 /// resulting in a "photographic negative" effect.
 void ImageNegative(Image img) { ///
   assert (img != NULL);
-  int width = img -> width;
-  int height = img -> height;
-
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      uint8 pixel = ImageGetPixel(img, x, y);
-      ImageSetPixel(img, x, y, (uint8)(img->maxval - pixel));
-    }
-  }
+  // Insert your code here!
 }
+
 /// Apply threshold to image.
 /// Transform all pixels with level<thr to black (0) and
 /// all pixels with level>=thr to white (maxval).
 void ImageThreshold(Image img, uint8 thr) { ///
   assert (img != NULL);
-  int width = img -> width;
-  int height = img -> height;
-
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      uint8 pixel = ImageGetPixel(img, x, y);
-      if (pixel < thr)
-        ImageSetPixel(img, x, y, 0);
-      else
-        ImageSetPixel(img, x, y, img->maxval);
-  }
-}
+  // Insert your code here!
 }
 
 /// Brighten image by a factor.
@@ -448,18 +372,8 @@ void ImageThreshold(Image img, uint8 thr) { ///
 /// darken the image if factor<1.0.
 void ImageBrighten(Image img, double factor) { ///
   assert (img != NULL);
-  int widht = img -> width;
-  int height = img -> height;
-
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < widht; x++) {
-      uint8 pixel = ImageGetPixel(img, x, y);
-      if (pixel * factor > img->maxval)
-        ImageSetPixel(img, x, y, img->maxval); // Saturar ao valor máximo
-      else
-        ImageSetPixel(img, x, y, (uint8)(pixel * factor));
-    } 
-  }
+  // ? assert (factor >= 0.0);
+  // Insert your code here!
 }
 
 
@@ -485,19 +399,8 @@ void ImageBrighten(Image img, double factor) { ///
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageRotate(Image img) { ///
-    assert(img != NULL);
-    int width = img->width;
-    int height = img->height;
-    
-    Image rotatedImg = ImageCreate(height, width, img->maxval); // Nova imagem com dimensões rotacionadas
-    
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            uint8 pixel = ImageGetPixel(img, x, y);
-            ImageSetPixel(rotatedImg, height - y - 1, x, pixel); // Rotação de 90 graus 
-        }
-    }
-    return rotatedImg;
+  assert (img != NULL);
+  // Insert your code here!
 }
 
 /// Mirror an image = flip left-right.
@@ -509,18 +412,7 @@ Image ImageRotate(Image img) { ///
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageMirror(Image img) { ///
   assert (img != NULL);
-  int width = img->width;
-  int height = img -> height;
-
-  Image mirroredImg = ImageCreate(width, height, img->maxval); // Nova imagem com dimensões espelhadas
-
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      uint8 pixel = ImageGetPixel(img, x, y);
-      ImageSetPixel(mirroredImg, width - x - 1, y, pixel); // Espelhar a imagem
-    }
-  }
-  return mirroredImg;
+  // Insert your code here!
 }
 
 /// Crop a rectangular subimage from img.
@@ -538,16 +430,7 @@ Image ImageMirror(Image img) { ///
 Image ImageCrop(Image img, int x, int y, int w, int h) { ///
   assert (img != NULL);
   assert (ImageValidRect(img, x, y, w, h));
-  
-  Image croppedImg = ImageValidRect(img, x, y, w, h); // Nova imagem com dimensões recortadas
-
-  for (int cy = y; cy < y + h; cy ++) {
-    for (int cx = x; cx < x + w; cx++) {
-      uint8 pixel = ImageGetPixel(img, cx, cy);
-      ImageSetPixel(croppedImg, cx - x, cy - y, pixel); // Recortar a imagem
-    }
-  }
-  return croppedImg;
+  // Insert your code here!
 }
 
 
@@ -561,17 +444,9 @@ void ImagePaste(Image img1, int x, int y, Image img2) { ///
   assert (img1 != NULL);
   assert (img2 != NULL);
   assert (ImageValidRect(img1, x, y, img2->width, img2->height));
-
-  int width = img2->width;
-  int height = img2->height;
-
-  for (int qy = 0; qy < height; qy++) {
-    for (int qx = 0; qx < width; qx++) {
-      uint8 pixel = ImageGetPixel(img2, qx, qy);
-      ImageSetPixel(img1, x + qx, y + qy, pixel); // Colar a imagem
-    }
-  }
+  // Insert your code here!
 }
+
 /// Blend an image into a larger image.
 /// Blend img2 into position (x, y) of img1.
 /// This modifies img1 in-place: no allocation involved.

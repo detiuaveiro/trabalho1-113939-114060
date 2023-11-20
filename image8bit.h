@@ -72,7 +72,6 @@ Image ImageLoad(const char* filename) ;
 /// On failure, returns 0, errno/errCause are set appropriately, and
 /// a partial and invalid file may be left in the system.
 int ImageSave(Image img, const char* filename) ;
-    
 
 /// Information queries
 
